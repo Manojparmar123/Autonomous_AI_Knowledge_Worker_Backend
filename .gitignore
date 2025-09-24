@@ -1,14 +1,298 @@
+# Next.js build
+apps/frontend/.next/
+
+echo "*.pyc" >> .gitignore
+git add .gitignore
+git commit -m "Ignore compiled Python files"
+
+
+# -----------------------------
 # Python
+# -----------------------------
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyi
+*.env
+*.env.*
+*.venv/
+.venv/
+venv/
+ENV/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+*.sqlite3
+*.db
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# -----------------------------
+# IDEs
+# -----------------------------
+.vscode/
+.idea/
+*.sublime-projecta
+*.sublime-workspace
+
+# -----------------------------
+# Logs
+# -----------------------------
+*.log
+logs/
+*.out
+*.err
+
+# -----------------------------
+# OS files
+# -----------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -----------------------------
+# Node / Frontend
+# -----------------------------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+dist/
+build/
+*.lock
+
+# -----------------------------
+# Pytest / Coverage
+# -----------------------------
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# -----------------------------
+# Jupyter Notebook
+# -----------------------------
+.ipynb_checkpoints/
+
+# -----------------------------
+# Other
+# -----------------------------
+*.pem
+*.key
+
+
+
+# -----------------------------
+# Python
+# -----------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyi
+*.env
+*.env.*
+.venv/
+venv/
+ENV/
+env/
+*.sqlite3
+*.db
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+*.log
+*.out
+*.err
+pip-log.txt
+pip-delete-this-directory.txt
+
+# -----------------------------
+# AI / ML / Data
+# -----------------------------
+*.pt
+*.pth
+*.ckpt
+*.h5
+.cache/
+.models/
+.data/
+outputs/
+logs/
+wandb/
+tensorboard/
+*.npy
+*.npz
+*.hdf5
+*.pkl
+*.joblib
+*.sav
+
+# -----------------------------
+# Node / Frontend
+# -----------------------------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+dist/
+build/
+*.lock
+*.tsbuildinfo
+.vite/
+.eslintcache
+
+# -----------------------------
+# IDEs / Editors
+# -----------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# -----------------------------
+# OS / System files
+# -----------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+Icon?
+._*
+.Spotlight-V100/
+.Trashes/
+*.swp
+*.swo
+
+# -----------------------------
+# Testing / Coverage
+# -----------------------------
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+test-results/
+
+# -----------------------------
+# Jupyter / Notebooks
+# -----------------------------
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# -----------------------------
+# Security / Keys / Certificates
+# -----------------------------
+*.pem
+*.key
+*.crt
+*.pfx
+*.der
+*.csr
+*.jks
+
+# -----------------------------
+# Docker
+# -----------------------------
+docker-compose.override.yml
+*.dockerignore
+Dockerfile.dev
+
+# -----------------------------
+# Virtualization / VMs
+# -----------------------------
+*.vagrant/
+*.box
+.vagrant.d/
+
+# -----------------------------
+# Misc / Temporary
+# -----------------------------
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.old
+*.orig
+*.rej
+*.backup
+*.~*
+*.~lock.*
+*.log.*
+
+# -----------------------------
+# Archives / Binary files
+# -----------------------------
+*.zip
+*.tar.gz
+*.tar
+*.tgz
+*.rar
+*.7z
+*.exe
+*.dll
+*.so
+*.dylib
+
+# -----------------------------
+# Compiled / Build artifacts
+# -----------------------------
+*.class
+*.o
+*.obj
+*.so
+*.dylib
+*.exe
+*.out
+*.a
+*.lib
+*.dll
 *.pyc
 *.pyo
 *.pyd
-env/
-venv/
-*.env
+*.pdb
+*.ipch
+*.aps
+*.iobj
 
-# Logs
+# -----------------------------
+# Version control / Git
+# -----------------------------
+.gitignore
+.gitattributes
+*.patch
+*.diff
+*.orig
+
+# -----------------------------
+# Logs and Monitoring
+# -----------------------------
 *.log
+logs/
+*.trace
+*.dump
+*.prof
+*.pid
 
-# Database
-*.sqlite3
