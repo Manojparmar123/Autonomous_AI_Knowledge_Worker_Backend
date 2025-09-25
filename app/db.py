@@ -24,36 +24,48 @@
 #     finally:
 #         session.close()
 # apps/backend/app/db.py
+
 import os
 from typing import AsyncGenerator
-from sqlmodel import SQLModel
+from sqlmodel import SQLModel, create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-# Async database URL (aiosqlite)
+# Database URL (async for async operations)
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./database.db")
 
-# Create async engine
+# --------------------
+# Async engine & session
+# --------------------
 async_engine = create_async_engine(
     DATABASE_URL,
     echo=False,
-    connect_args={"check_same_thread": False}  # needed for SQLite
+    connect_args={"check_same_thread": False}  # Needed for SQLite
 )
 
-# Async session factory
 async_session = sessionmaker(
     async_engine,
     class_=AsyncSession,
     expire_on_commit=False
 )
 
-# Async DB initialization (creates tables)
 async def async_init_db():
+    """Initialize async DB (create tables)"""
     from .models import Document, Insight, Run, Task, Report  # noqa
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
-# Dependency to get async session
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    """Dependency to get async session"""
     async with async_session() as session:
         yield session
+
+# --------------------
+# Sync engine (for code that expects 'engine')
+# --------------------
+# Remove '+aiosqlite' for sync engine
+SYNC_DATABASE_URL = DATABASE_URL.replace("+aiosqlite", "")
+engine = create_engine(
+    SYNC_DATABASE_URL,
+    echo=False
+)
