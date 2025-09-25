@@ -45,3 +45,5 @@ transformers
 google-generativeai
 fastapi-mail
 python-jose
+aiosqlite
+ose
