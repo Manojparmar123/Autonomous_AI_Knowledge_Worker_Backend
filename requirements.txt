@@ -1,28 +1,3 @@
-# fastapi
-# uvicorn[standard]
-# sqlmodel
-# pydantic
-# pydantic-settings
-# apscheduler
-# langchain
-# langchain-huggingface
-# watchfiles
-# httpx
-# requests
-# python-multipart
-# jinja2
-# PyJWT
-# passlib[bcrypt]
-# python-docx
-# PyPDF2
-# pinecone
-# transformers
-# google-generativeai
-# python-multipart
-# apscheduler
-# langchain
-# fastapi-mail
-# python-jose
 fastapi
 uvicorn[standard]
 sqlmodel
@@ -40,9 +15,11 @@ PyJWT
 passlib[bcrypt]
 python-docx
 PyPDF2
-pinecone
+pinecone-client
 transformers
 google-generativeai
 fastapi-mail
 python-jose
 aiosqlite
+sentence-transformers
+torch
