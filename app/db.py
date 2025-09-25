@@ -23,52 +23,37 @@
 #         yield session
 #     finally:
 #         session.close()
-
-
-
 # apps/backend/app/db.py
-from sqlmodel import SQLModel, create_engine, Session
-from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlalchemy.ext.asyncio import create_async_engine
 import os
+from typing import AsyncGenerator
+from sqlmodel import SQLModel
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 
-# ------------------- Database URLs -------------------
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./database.db")
-ASYNC_DATABASE_URL = DATABASE_URL.replace("sqlite:///", "sqlite+aiosqlite:///")
+# Async database URL (aiosqlite)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./database.db")
 
-# ------------------- Engines -------------------
-# Sync engine for existing endpoints
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-engine = create_engine(DATABASE_URL, echo=False, connect_args=connect_args)
+# Create async engine
+async_engine = create_async_engine(
+    DATABASE_URL,
+    echo=False,
+    connect_args={"check_same_thread": False}  # needed for SQLite
+)
 
-# Async engine for startup (async-safe)
-async_engine = create_async_engine(ASYNC_DATABASE_URL, echo=False, connect_args=connect_args)
+# Async session factory
+async_session = sessionmaker(
+    async_engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
 
-# ------------------- DB Initialization -------------------
-def init_db():
-    """Sync DB init (existing)"""
-    from .models import Document, Insight, Run, Task, Report  # noqa
-    SQLModel.metadata.create_all(engine)
-
+# Async DB initialization (creates tables)
 async def async_init_db():
-    """Async-safe DB init (for Railway / aiosqlite)"""
     from .models import Document, Insight, Run, Task, Report  # noqa
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
-# ------------------- Sessions -------------------
-# Sync session (existing)
-def get_session():
-    session = Session(engine)
-    try:
+# Dependency to get async session
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session() as session:
         yield session
-    finally:
-        session.close()
-
-# Async session (optional if needed in future)
-def get_async_session():
-    async_session = AsyncSession(async_engine)
-    try:
-        yield async_session
-    finally:
-        pass

@@ -152,18 +152,16 @@
 # def chat():
 #     return {"message": "Chat endpoint is working!"}
 
-
 from fastapi import FastAPI, Depends, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from sqlmodel import Session, select
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-import asyncio
 import json
 
 # Internal modules
-from .db import get_session, DATABASE_URL, async_init_db
+from .db import get_session, async_init_db
 from .models import Document, Task, Run, Insight, Report
 from .schemas import IngestRequest, RunResponse
 from .auth import current_user
@@ -193,35 +191,31 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 async def generic_exception_handler(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"detail": str(exc)})
 
-# Include routers
+# Routers
 app.include_router(rag_router)
 app.include_router(upload_router, prefix="/upload", tags=["Upload API"])
 app.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 
-# ------------------- Async-safe Startup -------------------
 @app.on_event("startup")
 async def startup_event():
-    # Async DB init to avoid "greenlet_spawn" issues with aiosqlite
     await async_init_db()
-    # Scheduler can stay sync
     start_scheduler()
-# -----------------------------------------------------------
 
 @app.get("/health")
-def health():
+async def health():
     return {"ok": True, "env": APP_ENV}
 
 @app.post("/ingest/run", response_model=RunResponse)
-def ingest_run(
+async def ingest_run(
     req: IngestRequest,
     user=Depends(current_user),
-    session: Session = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ):
     run = Run(status="running", state_log=json.dumps([{"event": "enqueued"}]))
     session.add(run)
-    session.commit()
-    session.refresh(run)
+    await session.commit()
+    await session.refresh(run)
 
     task_payload = json.dumps({
         "source": req.source,
@@ -231,23 +225,24 @@ def ingest_run(
 
     task = Task(kind="ingest", payload=task_payload, run_id=run.id)
     session.add(task)
-    session.commit()
-    session.refresh(task)
+    await session.commit()
+    await session.refresh(task)
 
     from .workers import inline_ingest
-    inline_ingest(task.id, session)
+    await inline_ingest(task.id, session)  # make inline_ingest async
 
     return {"task_id": task.id}
 
 @app.get("/runs")
-def list_runs(
+async def list_runs(
     limit: int = Query(10, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    session: Session = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ):
     order_field = Run.created_at if hasattr(Run, "created_at") else Run.id
     query = select(Run).order_by(order_field.desc()).offset(offset).limit(limit)
-    runs = session.exec(query).all()
+    result = await session.exec(query)
+    runs = result.all()
     return [
         {
             "id": run.id,
@@ -261,50 +256,26 @@ def list_runs(
     ]
 
 @app.get("/insights")
-def list_insights(
+async def list_insights(
     limit: int = Query(10, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    session: Session = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ):
     query = select(Insight).order_by(Insight.created_at.desc()).offset(offset).limit(limit)
-    return session.exec(query).all()
+    result = await session.exec(query)
+    return result.all()
 
 @app.get("/reports")
-def list_reports(
+async def list_reports(
     kind: str | None = None,
     search: str | None = None,
-    session: Session = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ):
     query = select(Report).order_by(Report.created_at.desc())
     if kind:
         query = query.where(Report.kind == kind)
-    reports = session.exec(query).all()
+    result = await session.exec(query)
+    reports = result.all()
     if search:
         reports = [r for r in reports if search.lower() in (r.content or "").lower()]
     return reports
-
-@app.post("/scheduler/run-now")
-def trigger_all_jobs():
-    results = []
-    for job_name in JOB_REGISTRY.keys():
-        try:
-            run_manual_job(job_name)
-            results.append({"job": job_name, "status": "triggered"})
-        except ValueError as e:
-            results.append({"job": job_name, "status": "failed", "error": str(e)})
-    return {"results": results}
-
-@app.get("/scheduler/jobs")
-def list_scheduler_jobs():
-    jobs = []
-    for job in scheduler.get_jobs():
-        jobs.append({
-            "id": job.id,
-            "name": job.name,
-            "next_run": str(job.next_run_time) if job.next_run_time else None
-        })
-    return {"registered": list(JOB_REGISTRY.keys()), "scheduled": jobs}
-
-@app.get("/chat")
-def chat():
-    return {"message": "Chat endpoint is working!"}
