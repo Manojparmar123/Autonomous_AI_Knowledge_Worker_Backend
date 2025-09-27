@@ -22,4 +22,3 @@ fastapi-mail
 python-jose
 aiosqlite
 sentence-transformers
-torch
