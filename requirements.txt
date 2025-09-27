@@ -20,7 +20,7 @@ PyJWT
 passlib[bcrypt]
 python-docx
 PyPDF2
-pinecone-client
+pinecone
 google-generativeai
 fastapi-mail
 python-jose
