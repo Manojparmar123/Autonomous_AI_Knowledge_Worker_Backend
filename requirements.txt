@@ -1,4 +1,7 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.7.1+cpu
+transformers==4.41.2
+sentence-transformers==2.7.0
 
 fastapi
 uvicorn[standard]
@@ -18,9 +21,6 @@ passlib[bcrypt]
 python-docx
 PyPDF2
 pinecone-client
-transformers==4.41.2
-sentence-transformers==2.7.0
-torch==2.2.1+cpu
 google-generativeai
 fastapi-mail
 python-jose
