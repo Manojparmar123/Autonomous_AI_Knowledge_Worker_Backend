@@ -1,3 +1,5 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 fastapi
 uvicorn[standard]
 sqlmodel
@@ -18,7 +20,7 @@ PyPDF2
 pinecone-client
 transformers==4.41.2
 sentence-transformers==2.7.0
-torch==2.2.1
+torch==2.2.1+cpu
 google-generativeai
 fastapi-mail
 python-jose
